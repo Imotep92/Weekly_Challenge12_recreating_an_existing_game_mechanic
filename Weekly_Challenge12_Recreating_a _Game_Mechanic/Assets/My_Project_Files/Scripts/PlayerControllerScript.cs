@@ -14,14 +14,13 @@ public class PlayerControllerScript : MonoBehaviour
     //This is how fast the player moves
     [SerializeField] float _movementSpeed = 6f;
 
-    // This is how fast the player moevs when they are runnin, relative to the moveSpeed;
-    // [SerializeField] float runMultiplier = 1.5f;
-
     //This is how high the player jumps
     [SerializeField] float jumpForce = 7f;
 
     //This is the gravity being applied to the player when they are not on the ground 
     [SerializeField] float _gravity = 9.8f;
+
+    [SerializeField] float _doubleJumpMultiplier;
 
     //This is how sensitive the camera movement is based on the mouse input
     public float _mouseSensitivity = 2f;
@@ -35,8 +34,8 @@ public class PlayerControllerScript : MonoBehaviour
     //This represents the direction the player is moving in any given point
     Vector3 _moveDirection;
 
-    public bool _canGlide;
-    public bool _canJump;
+    private bool _canDoubleJump = false;
+
 
     //Gives us access to the player's character controller
     CharacterController _characterController;
@@ -47,7 +46,6 @@ public class PlayerControllerScript : MonoBehaviour
     {
         _PlayerController = this;
     }
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -68,8 +66,7 @@ public class PlayerControllerScript : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, -_lookXLimit, _lookXLimit);
         _playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
-        // isMoving = _moveDirection.magnitude == 0;
-
+       
         //Checks if the player is on the ground
         if (_characterController.isGrounded)
         {
@@ -83,48 +80,39 @@ public class PlayerControllerScript : MonoBehaviour
             //combining the player's local directions with player inputs
             _moveDirection = (horizontalInput * transform.right) + (verticalInput * transform.forward);
 
-            _canJump = true; // player's ability to jump set to false
-            _canGlide = false; // player's ability to glide set to true
-
-
-            #region Jumping
-            //Jumping mechanic
-            if (Input.GetButtonDown("Jump") && _characterController.isGrounded)
+            // #region Jumping
+            // //Jumping mechanic
+            if (Input.GetButtonDown("Jump") && _characterController.isGrounded && !_canDoubleJump)
             {
                 _moveDirection.y = jumpForce; // player jumps into the air
-
-                _canGlide = true; // player's ability to glide set to true
-                _canJump = false;
-
                 Debug.Log("Player has jumped");
+
+                _canDoubleJump = true;
+                
+                    if (Input.GetButtonDown("Jump") && _canDoubleJump)
+                    {
+                        _moveDirection.y = jumpForce * _doubleJumpMultiplier; // player jumps into the air again
+                        Debug.Log("Player has double jumped");
+
+                        _canDoubleJump = false;
+                    }
             }
             else
             {
                 _moveDirection.y = movementDirectionY;
                 Debug.Log("Player is on ground");
-            }
-
-            // if (_canGlide && Input.GetKeyDown(KeyCode.LeftShift))
-            // {
-            //     _moveDirection.y /= _gravity * Time.deltaTime;
-            //     Debug.Log("Player is gliding");
-            // }
-            
-            #endregion
+            } 
         }
         else
         {
             _moveDirection.y -= _gravity * Time.deltaTime; // Player falls
-            _canGlide = true; // player's ability to glide set to true
-            _canJump = false; // player's ability to jump set to false
         }
         //Moves the character based on inputs
         _characterController.Move(_moveDirection * _movementSpeed * Time.deltaTime);
     }
 
 }
-/*
-next is to track the */
+
 
 
 
