@@ -66,7 +66,7 @@ public class PlayerControllerScript : MonoBehaviour
         rotationX = Mathf.Clamp(rotationX, -_lookXLimit, _lookXLimit);
         _playerCamera.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
 
-       
+
         //Checks if the player is on the ground
         if (_characterController.isGrounded)
         {
@@ -80,32 +80,37 @@ public class PlayerControllerScript : MonoBehaviour
             //combining the player's local directions with player inputs
             _moveDirection = (horizontalInput * transform.right) + (verticalInput * transform.forward);
 
-            // #region Jumping
+            _canDoubleJump = false;
+
+
             // //Jumping mechanic
-            if (Input.GetButtonDown("Jump") && _characterController.isGrounded && !_canDoubleJump)
+            if (Input.GetButtonDown("Jump"))
             {
                 _moveDirection.y = jumpForce; // player jumps into the air
-                Debug.Log("Player has jumped");
+                Debug.Log("Player has jumped and can double jump");
 
                 _canDoubleJump = true;
-                
-                    if (Input.GetButtonDown("Jump") && _canDoubleJump)
-                    {
-                        _moveDirection.y = jumpForce * _doubleJumpMultiplier; // player jumps into the air again
-                        Debug.Log("Player has double jumped");
 
-                        _canDoubleJump = false;
-                    }
+                if (Input.GetButtonDown("Jump") && _canDoubleJump)
+                {
+                    _moveDirection.y = jumpForce * _doubleJumpMultiplier; // player jumps into the air again
+                    Debug.Log("Player has double jumped");
+
+                    _canDoubleJump = false;
+                }
             }
             else
             {
                 _moveDirection.y = movementDirectionY;
                 Debug.Log("Player is on ground");
-            } 
+
+                _canDoubleJump = false;
+            }
         }
         else
         {
             _moveDirection.y -= _gravity * Time.deltaTime; // Player falls
+            
         }
         //Moves the character based on inputs
         _characterController.Move(_moveDirection * _movementSpeed * Time.deltaTime);
