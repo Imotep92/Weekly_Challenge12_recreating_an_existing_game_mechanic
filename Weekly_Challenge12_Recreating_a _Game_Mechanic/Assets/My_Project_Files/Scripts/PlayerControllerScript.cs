@@ -80,7 +80,7 @@ public class PlayerControllerScript : MonoBehaviour
             //combining the player's local directions with player inputs
             _moveDirection = (horizontalInput * transform.right) + (verticalInput * transform.forward);
 
-            _canDoubleJump = false;
+            _canDoubleJump = true;
 
 
             // //Jumping mechanic
@@ -89,15 +89,6 @@ public class PlayerControllerScript : MonoBehaviour
                 _moveDirection.y = jumpForce; // player jumps into the air
                 Debug.Log("Player has jumped and can double jump");
 
-                _canDoubleJump = true;
-
-                if (Input.GetButtonDown("Jump") && _canDoubleJump)
-                {
-                    _moveDirection.y = jumpForce * _doubleJumpMultiplier; // player jumps into the air again
-                    Debug.Log("Player has double jumped");
-
-                    _canDoubleJump = false;
-                }
             }
             else
             {
@@ -109,6 +100,13 @@ public class PlayerControllerScript : MonoBehaviour
         }
         else
         {
+             if (Input.GetButtonDown("Jump") && _canDoubleJump)
+                {
+                    _moveDirection.y = jumpForce * _doubleJumpMultiplier; // player jumps into the air again
+                    Debug.Log("Player has double jumped");
+
+                    _canDoubleJump = false;
+                }
             _moveDirection.y -= _gravity * Time.deltaTime; // Player falls
             
         }
